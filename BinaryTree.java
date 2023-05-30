@@ -54,7 +54,7 @@ public class BinaryTree {
 	 */
 	public void insert(TreeNode<State> node, State next) {
 		if (node == null) {
-			node = new TreeNode(next);
+			node = new TreeNode<State>(next);
 		} else if (next.compareTo(node.getValue()) < 0) {
 			insert(node.getLeft(), next);
 		} else {
@@ -87,7 +87,20 @@ public class BinaryTree {
 	 * Prompts user for State name to find, then starts search
 	 */
 	public void testFind() {
+		String choice = Prompt.getString("Enter state name to search for (Q to quit) -");
+		if (choice.equalsIgnoreCase("Q")) return;
+		State s = find(root, choice.toLowerCase());
+		if (s == null) System.out.println("State not found");
+		else System.out.println(s);
+	}
 
+	public State find(TreeNode<State> node, String name){
+		if (node == null) return null;
+		if (node.getValue().getName().toLowerCase().equals(name)) 
+			return node.getValue();
+		if (name.compareTo(node.getValue().getName().toLowerCase()) < 0) 
+			return find(node.getLeft(), name);
+		return find(node.getRight(), name);
 	}
 	
 
@@ -104,7 +117,17 @@ public class BinaryTree {
 	 * @return  the number of nodes in the tree
 	 */
 	public int size() {
-		return 0;
+		return size(root);
+	}
+
+	/**
+	 * Finds the number of nodes starting at the given node
+	 * @param node  the node to start counting at
+	 * @return      the number of nodes in the tree
+	 */
+	public int size(TreeNode<State> node) {
+		if (node == null) return 0;
+		return 1 + size(node.getLeft()) + size(node.getRight());
 	}
 	
 	
@@ -120,7 +143,7 @@ public class BinaryTree {
 	 * The top level (root node) is level 0.
 	 */
 	public void printLevel() {
-		
+
 	}
 	
 	
@@ -129,7 +152,17 @@ public class BinaryTree {
 	 * prints "Tree empty" if empty tree
 	 */
 	public void testDepth() {
+		System.out.println("Depth: " + depth(root));
+	}
 
+	/**
+	 * Finds the depth of the tree starting at the given node
+	 * @param node  the node to start at
+	 * @return      the depth of the tree
+	 */
+	public int depth(TreeNode<State> node) {
+		if (node == null) return 0;
+		return 1 + Math.max(depth(node.getLeft()), depth(node.getRight()));
 	}
 
 }
