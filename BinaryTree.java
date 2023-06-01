@@ -9,7 +9,6 @@ import java.util.Scanner;
 public class BinaryTree {
 
 	private final String DEFAULT_FILE_NAME = "states2.txt"; // Default input file
-	private Scanner keyboard;
 	
 	private TreeNode<State> root;
 	
@@ -43,7 +42,8 @@ public class BinaryTree {
 	 * @param next  State to insert
 	 */
 	public void insert(State next) {
-		insert(root, next);
+		if (root == null) root = new TreeNode<State>(next);
+		else insert(root, next);
 	}
 
 	/**
@@ -52,14 +52,15 @@ public class BinaryTree {
 	 * @param node	current node
 	 * @param next	State to insert
 	 */
-	public void insert(TreeNode<State> node, State next) {
+	public TreeNode<State> insert(TreeNode<State> node, State next) {
 		if (node == null) {
-			node = new TreeNode<State>(next);
+			return new TreeNode<State>(next);
 		} else if (next.compareTo(node.getValue()) < 0) {
-			insert(node.getLeft(), next);
+			node.setLeft(insert(node.getLeft(), next));
 		} else {
-			insert(node.getRight(), next);
+			node.setRight(insert(node.getRight(), next));
 		}
+		return node;
 	}
 	
 
@@ -79,7 +80,7 @@ public class BinaryTree {
 	private void printInorderRecurse(TreeNode<State> node) {
 		if (node == null) return;
 		printInorderRecurse(node.getLeft());
-		System.out.print(node.getValue() + " ");
+		System.out.println(node.getValue());
 		printInorderRecurse(node.getRight());
 	}
 	
@@ -87,13 +88,22 @@ public class BinaryTree {
 	 * Prompts user for State name to find, then starts search
 	 */
 	public void testFind() {
-		String choice = Prompt.getString("Enter state name to search for (Q to quit) -");
-		if (choice.equalsIgnoreCase("Q")) return;
-		State s = find(root, choice.toLowerCase());
-		if (s == null) System.out.println("State not found");
-		else System.out.println(s);
+		String choice = Prompt.getString("Enter state name to search for (Q to quit) ");
+		do {
+			if (choice.equalsIgnoreCase("Q")) return;
+			State s = find(root, choice.toLowerCase());
+			if (s == null) System.out.println("Name = " + choice + " State not found");
+			else System.out.println("\n" + s + "\n");
+			choice = Prompt.getString("Enter state name to search for (Q to quit) ");
+		} while (!choice.equalsIgnoreCase("Q"));
 	}
 
+	/**
+	 * Finds the State with the given name
+	 * @param node  the node to start at
+	 * @param name  the name to search for
+	 * @return      the State with the given name, null if not found
+	 */
 	public State find(TreeNode<State> node, String name){
 		if (node == null) return null;
 		if (node.getValue().getName().toLowerCase().equals(name)) 
@@ -143,7 +153,30 @@ public class BinaryTree {
 	 * The top level (root node) is level 0.
 	 */
 	public void printLevel() {
+		int level = Prompt.getInt("Enter level to print (-1 to quit)");
+		System.out.println();
+		do {
+			System.out.println("Level \t" + level);
+			printLevel(root, level);
+			System.out.println("\n");
+			level = Prompt.getInt("Enter level to print (-1 to quit)");
+			System.out.println();
+		} while (level != -1);
+	}
 
+	/**
+	 * Prints the given level of the tree (root is level 0),
+	 * prints "Tree empty" if empty tree
+	 * @param node  the node to start at
+	 * @param level the level to print
+	 */
+	public void printLevel(TreeNode<State> node, int level) {
+		if (node == null) return;
+		else if (level == 0) System.out.print(node.getValue().getName() + "\t");
+		else {
+			printLevel(node.getLeft(), level - 1);
+			printLevel(node.getRight(), level - 1);
+		}
 	}
 	
 	
@@ -152,7 +185,8 @@ public class BinaryTree {
 	 * prints "Tree empty" if empty tree
 	 */
 	public void testDepth() {
-		System.out.println("Depth: " + depth(root));
+		if (root == null) System.out.println("Tree empty\n");
+		else System.out.println("Depth: " + (depth(root) - 1));
 	}
 
 	/**
